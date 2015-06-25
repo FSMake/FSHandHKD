@@ -7,6 +7,9 @@
 //
 
 #import "AppDelegate.h"
+#import "ZKNavController.h"
+#import "ZKHomeController.h"
+#import "ZKLoginController.h"
 
 @interface AppDelegate ()
 
@@ -17,6 +20,14 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+
+    ZKLoginController *loginController = [[ZKLoginController alloc] init];
+    
+    self.window.rootViewController = loginController;
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
 

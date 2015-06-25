@@ -1,5 +1,5 @@
 //
-//  ViewController.h
+//  ZKButton.h
 //  掌上科大
 //
 //  Created by 樊樊帅 on 6/24/15.
@@ -8,8 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController
-
+@interface ZKButton : UIButton
 
 @end
-

@@ -10,15 +10,17 @@
 #import "ZKLoginController.h"
 #import <BmobSDK/Bmob.h>
 #import "MBProgressHUD+MJ.h"
+#import "ZKTabBarController.h"
 
 #define ZKLableFont [UIFont systemFontOfSize:16]
 
-@interface ZKUserInfoController () <UIPickerViewDataSource, UIPickerViewDelegate>
+@interface ZKUserInfoController () <UIPickerViewDataSource, UIPickerViewDelegate, UITextFieldDelegate>
 
 @property (nonatomic, weak) UITextField *nameField;
 @property (nonatomic, weak) UITextField *collegeField;
 @property (nonatomic, weak) UITextField *majorField;
 @property (nonatomic, weak) UITextField *periodField;
+@property (nonatomic, weak) UITextField *mailField;
 
 @property (nonatomic, weak) UIButton *confimBtn;
 
@@ -209,7 +211,8 @@
     return nil;
 }
 
-#pragma mark - UIPickerViewDelegate
+#pragma mark - Delegate
+#pragma mark UIPickerViewDelegate
 - (void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component {
     if (pickerView.tag == 1) {
         _collegeField.text = [self pickerView:pickerView titleForRow:row forComponent:component];
@@ -456,12 +459,18 @@
     [user setObject:_collegeField.text forKey:@"college"];
     [user setObject:_majorField.text forKey:@"major"];
     [user setObject:_periodField.text forKey:@"period"];
+    [user setEmail:self.mailField.text];
+    [user setObject:@0 forKey:@"score"];
+    [user setObject:@0 forKey:@"level"];
     
+    [MBProgressHUD showMessage:@"正在登录"];
     [user updateInBackgroundWithResultBlock:^(BOOL isSuccessful, NSError *error) {
         if (error) {
             [MBProgressHUD showError:@"失败"];
         } else {
-            [MBProgressHUD showMessage:@"成功"];
+//            [MBProgressHUD showMessage:@"成功"];
+            [MBProgressHUD hideHUDForView:[[UIApplication sharedApplication].windows lastObject]];
+            [UIApplication sharedApplication].keyWindow.rootViewController = [[ZKTabBarController alloc] init];
         }
     }];
 }
@@ -544,6 +553,18 @@
         [self.view addSubview:_periodField];
     }
     return _periodField;
+}
+
+- (UITextField *)mailField {
+    if (_mailField == nil) {
+        UITextField *tF = [[UITextField alloc] init];
+        [tF setFont:ZKLableFont];
+        _mailField = tF;
+        tF.returnKeyType = UIReturnKeyDone;
+        
+        [self.view addSubview:_mailField];
+    }
+    return _mailField;
 }
 
 - (UIButton *)confimBtn {

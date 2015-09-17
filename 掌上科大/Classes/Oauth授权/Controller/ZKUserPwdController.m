@@ -10,12 +10,16 @@
 #import "ZKLoginController.h"
 #import <BmobSDK/Bmob.h>
 #import "MBProgressHUD+MJ.h"
+#import "ZKTabBarController.h"
+#import "ZKForgetPwdController.h"
 
 @interface ZKUserPwdController ()
 
 @property (nonatomic, weak) UITextField *userField;
 
 @property (nonatomic, weak) UITextField *pwdField;
+
+@property (nonatomic, weak) UIButton *forgetPwdBtn;
 
 @property (nonatomic, weak) UIButton *loginBtn;
 
@@ -70,18 +74,36 @@
     _loginBtn.enabled = _userField.text.length && _pwdField.text.length;
 }
 /**
+ *  忘记密码点击
+ */
+- (void)forgetPwd {
+    [[UIApplication sharedApplication].keyWindow resignFirstResponder];
+    [UIView animateWithDuration:0.3 animations:^{
+        self.view.layer.transform = CATransform3DMakeRotation(M_PI_2, 0, 1, 0);
+    } completion:^(BOOL finished) {
+        ZKForgetPwdController *nextVc = [[ZKForgetPwdController alloc] init];
+        [UIApplication sharedApplication].keyWindow.rootViewController = nextVc;
+    }];
+}
+
+/**
  *  点击了登录按钮
  */
 - (void)loginClick {
     NSString *username = _userField.text;
     NSString *pwd = _pwdField.text;
+    [MBProgressHUD showMessage:@"正在登录"];
     //向服务器发送登录请求
     [BmobUser loginInbackgroundWithAccount:username andPassword:pwd block:^(BmobUser *user, NSError *error) {
         if (error) {
+            [MBProgressHUD hideHUDForView:[[UIApplication sharedApplication].windows lastObject]];
             [MBProgressHUD showError:@"用户名或密码错误"];
         } else {
-            [MBProgressHUD showSuccess:@"登录成功"];
+//            [MBProgressHUD showSuccess:@"登录成功"];
+            [MBProgressHUD hideHUDForView:[[UIApplication sharedApplication].windows lastObject]];
             NSLog(@"%@", user);
+            //跳到主界面
+            [UIApplication sharedApplication].keyWindow.rootViewController = [[ZKTabBarController alloc] init];
         }
     }];
 }
@@ -139,6 +161,8 @@
     [forgetPwdBtn sizeToFit];
     forgetPwdBtn.x = self.view.width - forgetPwdBtn.width - 15;
     forgetPwdBtn.y = CGRectGetMaxY(self.pwdField.frame) + 5;
+    self.forgetPwdBtn = forgetPwdBtn;
+    [self.forgetPwdBtn addTarget:self action:@selector(forgetPwd) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:forgetPwdBtn];
     
     //登录按钮

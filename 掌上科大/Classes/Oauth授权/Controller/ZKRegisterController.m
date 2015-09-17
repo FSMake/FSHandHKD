@@ -48,6 +48,16 @@
 
 @implementation ZKRegisterController
 
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    //跳转到完善信息界面
+    [UIView animateWithDuration:0.3 animations:^{
+        self.view.layer.transform = CATransform3DMakeRotation(M_PI_2, 0, 1, 0);
+    } completion:^(BOOL finished) {
+        ZKUserInfoController *nextVc = [[ZKUserInfoController alloc] init];
+        [UIApplication sharedApplication].keyWindow.rootViewController = nextVc;
+    }];
+}
+
 #pragma mark - Life Cycle
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -108,10 +118,8 @@
  */
 - (void)getSMSCode {
     NSLog(@"获取验证码");
-
-    
     //请求验证码
-    [BmobSMS requestSMSCodeInBackgroundWithPhoneNumber:_phoneNumber.text andTemplate:@"FSTemplate" resultBlock:^(int number, NSError *error) {
+    [BmobSMS requestSMSCodeInBackgroundWithPhoneNumber:_phoneNumber.text andTemplate:@"FSSMS" resultBlock:^(int number, NSError *error) {
         if (error) {
             NSLog(@"请求失败");
             [MBProgressHUD showError:@"请求失败"];
@@ -169,6 +177,22 @@
         second = 60;
         [self textChange];
     }
+}
+
+- (void)phoneNumberDone {
+    [self.phoneNumber resignFirstResponder];
+}
+
+- (void)SMSCodeDone {
+    [self.SMSCode resignFirstResponder];
+}
+
+- (void)pwdDone {
+    [self.pwd resignFirstResponder];
+}
+
+- (void)userNameDone {
+    [self.userName resignFirstResponder];
 }
 
 #pragma mark - private method
@@ -347,6 +371,11 @@
         UITextField *tF = [[UITextField alloc] init];
         tF.keyboardType = UIKeyboardTypePhonePad;
         [tF setFont:ZKRegFont];
+        //设置键盘工具条
+        UIToolbar *keyBoardToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, screenW, 40)];
+        UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(phoneNumberDone)];
+        [keyBoardToolBar setItems:@[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil], doneBtn] animated:YES];
+        tF.inputAccessoryView = keyBoardToolBar;
         _phoneNumber = tF;
         [self.view addSubview:_phoneNumber];
     }
@@ -357,6 +386,11 @@
     if (_SMSCode == nil) {
         UITextField *tF = [[UITextField alloc] init];
         [tF setFont:ZKRegFont];
+        //设置键盘工具条
+        UIToolbar *keyBoardToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, screenW, 40)];
+        UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(SMSCodeDone)];
+        [keyBoardToolBar setItems:@[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil], doneBtn] animated:YES];
+        tF.inputAccessoryView = keyBoardToolBar;
         _SMSCode = tF;
         [self.view addSubview:_SMSCode];
     }
@@ -367,6 +401,11 @@
     if (_pwd == nil) {
         UITextField *tF = [[UITextField alloc] init];
         [tF setFont:ZKRegFont];
+        //设置键盘工具条
+        UIToolbar *keyBoardToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, screenW, 40)];
+        UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(pwdDone)];
+        [keyBoardToolBar setItems:@[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil], doneBtn] animated:YES];
+        tF.inputAccessoryView = keyBoardToolBar;
         _pwd = tF;
         _pwd.secureTextEntry = YES;
         [self.view addSubview:_pwd];
@@ -378,6 +417,11 @@
     if (_userName == nil) {
         UITextField *tF = [[UITextField alloc] init];
         [tF setFont:ZKRegFont];
+        //设置键盘工具条
+        UIToolbar *keyBoardToolBar = [[UIToolbar alloc] initWithFrame:CGRectMake(0, 0, screenW, 40)];
+        UIBarButtonItem *doneBtn = [[UIBarButtonItem alloc] initWithTitle:@"确定" style:UIBarButtonItemStylePlain target:self action:@selector(userNameDone)];
+        [keyBoardToolBar setItems:@[[[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace target:nil action:nil], doneBtn] animated:YES];
+        tF.inputAccessoryView = keyBoardToolBar;
         _userName = tF;
         [self.view addSubview:_userName];
     }

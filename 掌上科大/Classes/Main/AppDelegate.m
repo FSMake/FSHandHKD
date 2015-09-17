@@ -8,10 +8,15 @@
 
 #import "AppDelegate.h"
 #import "ZKNavController.h"
-#import "ZKHomeController.h"
 #import "ZKLoginController.h"
+#import "ZKTabBarController.h"
+#import <BmobSDK/Bmob.h>
+#import "SDWebImageManager.h"
+#import "WeiboSDK.h"
+#import "MBProgressHUD+MJ.h"
+#import "UMSocial.h"
 
-@interface AppDelegate ()
+@interface AppDelegate () <WeiboSDKDelegate>
 
 @end
 
@@ -20,11 +25,25 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    [UMSocialData setAppKey:@"559751f067e58e438400466d"];
+    [UMSocialConfig showNotInstallPlatforms:nil];
+    [WeiboSDK enableDebugMode:YES];
+    [WeiboSDK registerApp:kAppKey];
+    
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 
-    ZKLoginController *loginController = [[ZKLoginController alloc] init];
+    BmobUser *user = [BmobUser getCurrentUser];
     
-    self.window.rootViewController = loginController;
+    if (user) {
+        ZKTabBarController *tabBarController = [[ZKTabBarController alloc] init];
+        
+        self.window.rootViewController = tabBarController;
+    } else {
+        ZKLoginController *loginController = [[ZKLoginController alloc] init];
+        
+        self.window.rootViewController = loginController;
+    }
+    
     
     [self.window makeKeyAndVisible];
     
@@ -51,6 +70,39 @@
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
+}
+
+- (void)applicationDidReceiveMemoryWarning:(UIApplication *)application {
+    SDWebImageManager *mgr = [SDWebImageManager sharedManager];
+    [mgr.imageCache cleanDisk];
+    [mgr.imageCache clearMemory];
+}
+
+- (BOOL)application:(UIApplication *)application handleOpenURL:(NSURL *)url {
+    return [WeiboSDK handleOpenURL:url delegate:self];
+}
+
+- (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation {
+    return [WeiboSDK handleOpenURL:url delegate:self];
+}
+
+- (void)didReceiveWeiboResponse:(WBBaseResponse *)response {
+    if ([response isKindOfClass:WBSendMessageToWeiboResponse.class])
+    {
+        
+    }
+    else if ([response isKindOfClass:WBAuthorizeResponse.class])//授权请求
+    {
+        [MBProgressHUD showMessage:@"正在登录中"];
+        
+        NSDictionary *dic = @{@"access_token":[(WBAuthorizeResponse *)response accessToken],@"uid":[(WBAuthorizeResponse *)response userID],@"expirationDate":[(WBAuthorizeResponse *)response expirationDate]};
+        
+        [BmobUser loginInBackgroundWithAuthorDictionary:dic platform:BmobSNSPlatformSinaWeibo block:^(BmobUser *user, NSError *error) {
+            [MBProgressHUD hideHUDForView:[[UIApplication sharedApplication].windows lastObject]];
+            ZKTabBarController *tabBarController = [[ZKTabBarController alloc] init];
+            self.window.rootViewController = tabBarController;
+        }];
+    }
 }
 
 @end

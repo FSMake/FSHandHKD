@@ -58,6 +58,7 @@
             [imgView sd_setImageWithURL:[NSURL URLWithString:urlStr] placeholderImage:[UIImage imageNamed:@"article_image_placeholder"]];
             
         } else {//本段是文字内容
+            NSLog(@"%@", self.subviews);
             UIView *lastView = [self.subviews lastObject];
             UILabel *label = [[UILabel alloc] init];
             label.font = ZKTextFont;
@@ -83,6 +84,7 @@
             label.height = sectionSize.height;
             label.x = 0;
             label.y = CGRectGetMaxY(lastView.frame) + 20;
+            NSLog(@"---------%@", NSStringFromCGRect(lastView.frame));
             
             [self addSubview:label];
         }
